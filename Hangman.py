@@ -173,7 +173,8 @@ class HangmanGame:
    
     def GenerateWord():
         
-        words = ['apple', 'banana', 'awesome', 'microphone', 'dead', 'cool', 'super']
+        words = ['apple', 'banana', 'awesome', 'microphone', 'dead', 'cool', 'super', 'ferrari', 'walnut', 
+                 'mountain', 'blue', 'strawberry', 'cellular', 'computer', 'legend', 'vodka', 'friend', 'country']
     
         return random.choice(words)
        
