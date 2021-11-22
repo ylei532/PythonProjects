@@ -170,10 +170,10 @@ class HangmanGame:
   |
 -----""")
 
-    
+   
     def GenerateWord():
         
-        words = ['apple', 'banana', 'awesome', 'Microphone', 'dead', 'cool', 'super']
+        words = ['apple', 'banana', 'awesome', 'microphone', 'dead', 'cool', 'super']
     
         return random.choice(words)
        
@@ -204,6 +204,7 @@ class HangmanGame:
 
     def Start(self):
         
+        guesses = {''}
         self.game_over = False
         self.errors = 0
         self.word = [char for char in HangmanGame.GenerateWord()]
@@ -212,7 +213,10 @@ class HangmanGame:
         HangmanGame.DisplayWord(self)
         while not self.game_over:
             
-            letter = input('\nGuess: ')
+            print("\n\nGuesses: [" + ''.join([len(guesses)*'{} ']).format(*[w for w in guesses]) + ']')
+            letter = input('Guess a letter: ')
+            
+            guesses.add(letter)
             
             HangmanGame.GuessWord(self, letter)
             HangmanGame.DisplayStatus(self)
