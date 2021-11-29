@@ -14,8 +14,39 @@ pieces = [
          [[0,1], [1,0], [1,1], [1,2]],  # best piece
          [[0,0], [0,1], [1,0], [2,0]],  # inverted 7
          [[0,0], [0,1], [1,1], [2,1]],  #7
-         [[0,0], [0,1], [1,1], [1,2]]   # square
+         [[0,0], [0,1], [1,0], [1,1]]   # square
          ]
+
+pieces_1 = [
+         [[-1,1], [0,1], [0,0], [1,0]], # Z
+         [[0,-1], [0,0], [0,1], [0,2]],  # straight line 
+         [[-1,1], [0,1], [0,2], [1,2]],  # inverted Z
+         [[0,1], [1,1], [1,2], [2,1]],  # best piece
+         [[1,-1], [1,0], [1,1], [2,1]],  # inverted 7
+         [[1,0], [1,1], [1,2], [0,2]],  #7
+         [[0,0], [0,1], [1,0], [1,1]]   # square
+         ]
+
+pieces_2 = [
+         [[0,0], [0,1], [1,1], [1,2]], # Z
+         [[0,0], [1,0], [2,0], [3,0]],  # straight line 
+         [[0,1], [0,2], [1,0], [1,1]],  # inverted Z
+         [[1,0], [1,1], [1,2], [2,1]],  # best piece
+         [[0,0], [1,0], [2,0], [2,-1]],  # inverted 7
+         [[0,1], [1,1], [2,1], [2,2]],  #7
+         [[0,0], [0,1], [1,0], [1,1]]   # square
+         ]
+
+pieces_3 = [
+         [[-1,1], [0,1], [0,0], [1,0]], # Z
+         [[0,-1], [0,0], [0,1], [0,2]],  # straight line 
+         [[-1,1], [0,1], [0,2], [1,2]],  # inverted Z
+         [[0,1], [1,1], [1,0], [2,1]],  # best piece
+         [[0,-1], [1,-1], [1,0], [1,1]],  # inverted 7
+         [[1,0], [1,1], [1,2], [2,0]],  #7
+         [[0,0], [0,1], [1,0], [1,1]]   # square
+         ]
+
 
 
 lock = threading.Lock()
@@ -26,6 +57,9 @@ class TetrisGame():
         self.grid = [["_" for i in range(MAXWIDTH)] for i in range(MAXHEIGHT)]
         self.loci = []
         self.game_over = False
+        self.rotation_loci = 0
+        self.rotation_index = [pieces, pieces_1, pieces_2, pieces_3]
+        self.piece = ""
    
     def CheckGame(self):
         count = 0
@@ -39,13 +73,7 @@ class TetrisGame():
                 
             #     for k in range(MAXWIDTH):
             #         self.grid[i][k] = "_"
-                    
-                
-                
-                
-                
-                
-                        
+                                          
             # count = 0
     
     def UserInput(self):
@@ -53,6 +81,7 @@ class TetrisGame():
         Handles user inputs
         '''
         no_space = False
+        
         while True:
             if self.game_over == True:
                 break
@@ -124,7 +153,54 @@ class TetrisGame():
                 lock.release()
             
             elif x.lower() == 'f':
-                self.game_over = True                
+                self.game_over = True
+
+            # rotate counter clockwise
+            elif x.lower() == 'w':
+                lock.acquire()
+                if self.rotation_loci == 3:
+                    self.rotation_loci = 0
+                else:
+                    self.rotation_loci += 1
+                    
+                                  
+                for x, y in self.loci:
+                    self.grid[x][y] = '_'
+                    
+                new_loci = list(np.array(self.loci) - np.array(self.rotation_index[3 if self.rotation_loci == 0 else self.rotation_loci-1][self.piece]) + np.array(self.rotation_index[self.rotation_loci][self.piece]))
+                
+                for x, y in new_loci:
+                        if self.grid[x][y] != "_":
+                            no_space = True
+                            break
+                   
+                if no_space:
+                    for x, y in self.loci:
+                        self.grid[x][y] = "\033[4m0\033[0m"
+                    
+                    if self.rotation_loci == 0:
+                        self.rotation_loci = 3
+                    else:
+                        self.rotation_loci -= 1
+                    
+                    no_space = False
+                    lock.release()
+                    continue
+                    
+                self.loci = new_loci
+                
+                for x, y in self.loci:
+                    self.grid[x][y] = "\033[4m0\033[0m"
+                self.display_grid()
+                
+                lock.release()
+                
+                
+                
+                
+                
+                
+                
     
     def display_grid(self):
         '''
@@ -153,8 +229,12 @@ class TetrisGame():
         Handles the insertion of a piece into the tetris grid
         '''
         
+        self.rotation_loci = 0
         self.loci.clear()
-        for x, y in pieces[random.randint(0, 6)]:
+        
+        self.piece = random.randint(0,6)
+        
+        for x, y in pieces[self.piece]:
             while self.grid[x+4][y+3] != "_":
                 x-=1
             if x+4 == 1:
@@ -185,7 +265,7 @@ class TetrisGame():
                     break
                 
                 self.display_grid()
-                time.sleep(0.25)
+                time.sleep(0.4)
                 numpy_loci = np.array(self.loci)
                 if max(numpy_loci[:,0]) == 23:
                     break
@@ -227,7 +307,7 @@ class TetrisGame():
             self.display_grid()
             
     
-            time.sleep(0.25)    
+            time.sleep(0.4)    
           
 def main():
 

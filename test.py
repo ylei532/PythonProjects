@@ -1,8 +1,23 @@
 import numpy as np
-list1 = [[2,3], [2,4]]
-array = np.array(list1)
-list2 = [[y, x+1] for y, x in array[:,:]]
-print(list2)
+import random
+pieces = [
+         [[0,0], [0,1], [1,1], [1,2]], # Z
+         [[0,0], [1,0], [2,0], [3,0]],  # straight line 
+         [[0,1], [0,2], [1,0], [1,1]],  # inverted Z
+         [[0,1], [1,0], [1,1], [1,2]],  # best piece
+         [[0,0], [0,1], [1,0], [2,0]],  # inverted 7
+         [[0,0], [0,1], [1,1], [2,1]],  #7
+         [[0,0], [0,1], [1,1], [1,2]]   # square
+         ]
 
-for i in range(5,0):
-    print(i)
+x = np.array(pieces[0])
+x1 = np.array(pieces[1])
+
+x = 3
+
+while True:
+    if x == 2:
+        break
+    
+    x = random.randint(0,6)
+    print(x)
