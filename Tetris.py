@@ -4,7 +4,6 @@ import random
 import threading
 
 MAXHEIGHT = 24
-VISIBLEHEIGHT = 20
 MAXWIDTH = 10
 
 pieces = [
@@ -151,11 +150,8 @@ class TetrisGame():
                         self.grid[x][y] = "\033[4m0\033[0m"
                     self.display_grid()
                 lock.release()
-            
-            elif x.lower() == 'f':
-                self.game_over = True
 
-            # rotate counter clockwise
+            # rotate piece
             elif x.lower() == 'w':
                 lock.acquire()
                 if self.rotation_loci == 3:
@@ -170,9 +166,9 @@ class TetrisGame():
                 new_loci = list(np.array(self.loci) - np.array(self.rotation_index[3 if self.rotation_loci == 0 else self.rotation_loci-1][self.piece]) + np.array(self.rotation_index[self.rotation_loci][self.piece]))
                 
                 for x, y in new_loci:
-                        if self.grid[x][y] != "_":
-                            no_space = True
-                            break
+                    if self.grid[x][y] != "_":
+                        no_space = True
+                        break
                    
                 if no_space:
                     for x, y in self.loci:
@@ -194,14 +190,47 @@ class TetrisGame():
                 self.display_grid()
                 
                 lock.release()
+            
+            # end game function
+            elif x.lower() == 'f':
+                self.game_over = True
                 
                 
+            # quick move piece downwards
+            elif x.lower() == "s":
                 
+                lock.acquire()
+                for x, y in self.loci:
+                    self.grid[x][y] = '_'
+
                 
+                self.display_grid()
                 
+                while True:
+                    
+                    if max(np.array(self.loci)[:,0]) == 23:
+                        break
+
+                    for x, y in self.loci:
+                        if self.grid[x+1][y] == '\033[4m0\033[0m':
+                            no_space = True
+                            break
+                    
+                    if no_space:
+                        no_space = False
+                        break
+                    else:                       
+                        self.loci = [[x+1, y] for x, y in self.loci]
+                    
+                     
                 
+                for x, y in self.loci:
+                    self.grid[x][y] = '\033[4m0\033[0m'
+                self.display_grid()
                 
-    
+                lock.release()
+                
+  
     def display_grid(self):
         '''
         Show the current status of the grid
@@ -265,7 +294,7 @@ class TetrisGame():
                     break
                 
                 self.display_grid()
-                time.sleep(0.4)
+                time.sleep(0.2)
                 numpy_loci = np.array(self.loci)
                 if max(numpy_loci[:,0]) == 23:
                     break
@@ -307,7 +336,7 @@ class TetrisGame():
             self.display_grid()
             
     
-            time.sleep(0.4)    
+            time.sleep(0.2)    
           
 def main():
 
@@ -315,19 +344,12 @@ def main():
     
     thread1 = threading.Thread(target=TetrisGame.UserInput, args=[game])
     thread2 = threading.Thread(target=TetrisGame.StartGame, args=[game])
+    
     thread1.start()
     thread2.start()
     
-    # game = TetrisGame()
-    # game.start()
-    
-    # game.join()
     thread1.join()
     thread2.join()
             
-    # game = TetrisGame()
-    # game.StartGame() 
-    # y = [[0,0], [0,1], [2,2], [3,1]]
-    # print(y[:,0:1])
 if __name__ == "__main__":
     main()
