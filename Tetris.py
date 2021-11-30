@@ -61,19 +61,59 @@ class TetrisGame():
         self.piece = ""
    
     def CheckGame(self):
+        lock.acquire()
+        full_row = []
         count = 0
+        
         for i in range(4, MAXHEIGHT):
             for j in range(MAXWIDTH):
                 if self.grid[i][j] == "\033[4m0\033[0m":
                     count+=1
                 else:
                     break
-            # if count == 10:
-                
-            #     for k in range(MAXWIDTH):
-            #         self.grid[i][k] = "_"
+            
+            if count == 10:              
+                full_row.append(i)
                                           
-            # count = 0
+            count = 0
+               
+        
+        if full_row != []:
+            new_full_row = np.array(full_row)
+            
+            for i in full_row:
+                for j in range(MAXWIDTH):
+                    self.grid[i][j] = '_'
+            
+            new_grid = np.array([[0 if self.grid[x][y] == "_" else 1 for y in range(len(self.grid[x][:]))] for x in range(len(self.grid))])            
+            print('1\n\r')
+            print(new_grid)
+            
+            time.sleep(3)
+            index = -1
+           
+            for i in range(len(full_row)):
+                
+               # temp = new_grid[4:new_full_row[index]][:]
+
+               # new_grid[4:new_full_row[index]][:] = 0
+               
+               # new_grid[5:new_full_row[index]+1][:] = temp
+               
+               
+               new_grid[5:new_full_row[index]+1][:] = new_grid[4:new_full_row[index]][:]
+               new_grid[4,:] = 0
+               
+               index-=1
+               new_full_row[:]+=1
+
+        
+            new_grid = list(new_grid)
+            self.grid = [["_" if new_grid[x][y] == 0 else "\033[4m0\033[0m" for y in range(len(new_grid[x][:]))] for x in range(len(new_grid))]
+        
+      
+        lock.release()
+
     
     def UserInput(self):
         '''
@@ -294,7 +334,7 @@ class TetrisGame():
                     break
                 
                 self.display_grid()
-                time.sleep(0.2)
+                time.sleep(0.5)
                 numpy_loci = np.array(self.loci)
                 if max(numpy_loci[:,0]) == 23:
                     break
@@ -327,16 +367,14 @@ class TetrisGame():
                     self.grid[self.loci[i][0]+1][self.loci[i][1]] = "\033[4m0\033[0m"
                     self.loci[i][0]+=1
                 
-                self.display_grid()
  
             if self.game_over == True: # check if user ends game
                 break
             
+            self.CheckGame()
             self.insert_piece()
             self.display_grid()
-            
-    
-            time.sleep(0.2)    
+            time.sleep(0.5)    
           
 def main():
 
