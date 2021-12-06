@@ -46,8 +46,6 @@ pieces_3 = [
          [[0,0], [0,1], [1,0], [1,1]]   # square
          ]
 
-
-
 lock = threading.Lock()
 
 class TetrisGame():
@@ -86,21 +84,11 @@ class TetrisGame():
                     self.grid[i][j] = '_'
             
             new_grid = np.array([[0 if self.grid[x][y] == "_" else 1 for y in range(len(self.grid[x][:]))] for x in range(len(self.grid))])            
-            print('1\n\r')
-            print(new_grid)
-            
-            time.sleep(3)
+
             index = -1
            
             for i in range(len(full_row)):
-                
-               # temp = new_grid[4:new_full_row[index]][:]
-
-               # new_grid[4:new_full_row[index]][:] = 0
-               
-               # new_grid[5:new_full_row[index]+1][:] = temp
-               
-               
+                   
                new_grid[5:new_full_row[index]+1][:] = new_grid[4:new_full_row[index]][:]
                new_grid[4,:] = 0
                
@@ -203,7 +191,21 @@ class TetrisGame():
                 for x, y in self.loci:
                     self.grid[x][y] = '_'
                     
-                new_loci = list(np.array(self.loci) - np.array(self.rotation_index[3 if self.rotation_loci == 0 else self.rotation_loci-1][self.piece]) + np.array(self.rotation_index[self.rotation_loci][self.piece]))
+                new_loci = (np.array(self.loci) - np.array(self.rotation_index[3 if self.rotation_loci == 0 else self.rotation_loci-1][self.piece]) + np.array(self.rotation_index[self.rotation_loci][self.piece]))
+
+                
+                while max(new_loci[:,1]) > 9:
+                    new_loci[:,1] = [x-1 for x in new_loci[:,1]]
+                
+                while max(new_loci[:,0]) > 23:
+                    new_loci[:,1] = [x-1 for x in new_loci[:,0]]
+                
+                while min(new_loci[:,1]) < 0:
+                    new_loci[:,1] = [x+1 for x in new_loci[:,1]]
+                
+                
+                
+                new_loci = list(new_loci)
                 
                 for x, y in new_loci:
                     if self.grid[x][y] != "_":
@@ -334,7 +336,7 @@ class TetrisGame():
                     break
                 
                 self.display_grid()
-                time.sleep(0.5)
+                time.sleep(1)
                 numpy_loci = np.array(self.loci)
                 if max(numpy_loci[:,0]) == 23:
                     break
@@ -374,7 +376,7 @@ class TetrisGame():
             self.CheckGame()
             self.insert_piece()
             self.display_grid()
-            time.sleep(0.5)    
+            time.sleep(1)    
           
 def main():
 
